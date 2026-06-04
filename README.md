@@ -13,20 +13,24 @@ The primary objective of this project is to apply Data Structures and Algorithms
 Displays current drone status (Idle or Delivering)
 Shows the package currently being processed
 Provides real-time system activity updates
+
 📦 FIFO Queue Management
 Custom Queue implementation
 Built using a Singly Linked List
 First package entered is delivered first
 No external database required
+
 🔊 Audio Notifications
 Voice notification when a package is dispatched
 Voice notification when a package arrives
 Powered by Google Text-to-Speech (gTTS)
+
 🎨 Modern User Interface
 Glassmorphism-inspired design
 Smooth UI animations
 Dark mode appearance
 Custom CSS styling
+
 🧰 Tech Stack
 Python
 Streamlit
@@ -34,6 +38,7 @@ Google Text-to-Speech (gTTS)
 HTML/CSS
 Singly Linked List
 FIFO Queue
+
 📂 Project Structure
 drone_delivery/
 ├── app.py
@@ -51,11 +56,7 @@ drone_delivery/
 └── README.md
 📸 Application Preview
 
-Add screenshots of your application here.
 
-Dashboard Screenshot
-Queue Management Screenshot
-Drone Navigation Screenshot
 ⚙️ Installation
 1. Clone the Repository
 git clone https://github.com/yourusername/drone-autopilot-delivery.git
