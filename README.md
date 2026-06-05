@@ -13,6 +13,14 @@ Drone AutoPilot Delivery simulates an autonomous drone package delivery workflow
 • Track active deliveries and delivery history
 • Clean separation between UI and backend logic
 
+## Visual Preview
+
+Berikut adalah ilustrasi tampilan menu dan antarmuka aplikasi.
+
+![Menu Aplikasi](assets/drone.png)
+
+> Gambar di atas menampilkan gaya visual aplikasi yang mengarah ke desain dashboard dan interaksi pengiriman paket.
+
 ## Project Structure
 
 The project is organized so that only Streamlit frontend files depend on Streamlit, and backend modules stay UI-free.
