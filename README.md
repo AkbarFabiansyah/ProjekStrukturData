@@ -203,5 +203,3 @@ python test_backend.py
 ```
 
 ---
-
-<img src="https://raw.githubusercontent.com/AkbarFabiansyah/ProjekStrukturData/assets/Dashboard.png" width="100%">
