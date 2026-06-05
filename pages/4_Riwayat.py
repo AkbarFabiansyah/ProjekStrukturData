@@ -2,12 +2,14 @@ import streamlit as st
 import os
 import sys
 import pandas as pd
+import time
 
 # Path configurations
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
-from logic import Queue
+from backend.logic import Queue
+from backend.drone_service import process_active_deliveries
 
 # Resolve logo and CSS paths
 LOGO_PATH = os.path.join(BASE_DIR, "assets", "logo.png")
@@ -18,7 +20,7 @@ CSS_PATH = os.path.join(BASE_DIR, "styles", "style.css")
 # =====================
 st.set_page_config(
     page_title="Riwayat - Drone Delivery",
-    page_icon="📜",
+    page_icon="⋮",
     layout="wide"
 )
 
@@ -48,6 +50,23 @@ if "queue" not in st.session_state:
 
 if "history" not in st.session_state:
     st.session_state.history = []
+
+if "drones" not in st.session_state:
+    st.session_state.drones = [
+        {"id": "DRN-01", "status": "Ready", "battery": 95, "speed": 60, "payload": 5, "current_job": None},
+        {"id": "DRN-02", "status": "Ready", "battery": 88, "speed": 55, "payload": 5, "current_job": None},
+        {"id": "DRN-03", "status": "Ready", "battery": 100, "speed": 65, "payload": 8, "current_job": None}
+    ]
+
+if "active_deliveries" not in st.session_state:
+    st.session_state.active_deliveries = []
+
+
+process_active_deliveries(
+    st.session_state.drones,
+    st.session_state.active_deliveries,
+    st.session_state.history,
+)
 
 # =====================
 # MAIN CONTENT

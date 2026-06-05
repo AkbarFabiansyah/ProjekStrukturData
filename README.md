@@ -1,202 +1,212 @@
+git clone https://github.com/yourusername/drone-autopilot-delivery.git
 🚁 Drone AutoPilot Delivery
 
-A Streamlit-based web application that simulates an autonomous drone delivery system using a FIFO Queue data structure implemented with a singly linked list.
+A Streamlit-based project that separates the frontend UI from the backend delivery logic cleanly.
 
-📌 Overview
+## Overview
 
-Drone AutoPilot Delivery is a simulation project that demonstrates how an autonomous drone delivery system manages package deliveries. The application combines a real-time dashboard, a queue-based package management system, and audio notifications within an interactive web interface.
+Drone AutoPilot Delivery simulates an autonomous drone package delivery workflow. The project uses a FIFO queue implementation for package management, while Streamlit pages provide the user interface.
 
-The primary objective of this project is to apply Data Structures and Algorithms (DSA) concepts in a real-world scenario, specifically implementing a FIFO (First In, First Out) Queue using a Singly Linked List.
+## Features
+• Real-time dashboard showing queue and drone status
+• Add packages into a delivery queue
+• Track active deliveries and delivery history
+• Clean separation between UI and backend logic
 
-✨ Features
-🌐 Real-Time Dashboard
-Displays current drone status (Idle or Delivering)
-Shows the package currently being processed
-Provides real-time system activity updates
+## Project Structure
 
-📦 FIFO Queue Management
-Custom Queue implementation
-Built using a Singly Linked List
-First package entered is delivered first
-No external database required
+The project is organized so that only Streamlit frontend files depend on Streamlit, and backend modules stay UI-free.
 
-🔊 Audio Notifications
-Voice notification when a package is dispatched
-Voice notification when a package arrives
-Powered by Google Text-to-Speech (gTTS)
+```
+ProjekStrukturData/
+├─ app.py                     # Streamlit bootstrap
+├─ backend/                   # Backend logic (no Streamlit)
+│  ├─ __init__.py
+│  ├─ logic.py
+│  ├─ package_service.py
+│  └─ drone_service.py
+├─ pages/                     # Streamlit pages
+│  ├─ __init__.py
+│  ├─ 1_Dashboard.py
+│  ├─ 2_Tambah_Paket.py
+│  ├─ 3_Antrean_Drone.py
+│  └─ 4_Riwayat.py
+├─ assets/
+├─ styles/
+├─ requirements.txt
+├─ test_backend.py
+└─ README.md
+```
 
-🎨 Modern User Interface
-Glassmorphism-inspired design
-Smooth UI animations
-Dark mode appearance
-Custom CSS styling
+## Running the app (Windows PowerShell)
 
-🧰 Tech Stack
-Python
-Streamlit
-Google Text-to-Speech (gTTS)
-HTML/CSS
-Singly Linked List
-FIFO Queue
+1. Create and activate a virtual environment:
 
-📂 Project Structure
-drone_delivery/
-├── app.py
-├── backend/
-│   └── logic.py
-├── pages/
-│   ├── 1_Dashboard.py
-│   ├── 3_Antrean_Drone.py
-│   └── 4_Navigasi.py
-├── assets/
-│   ├── logo.png
-│   └── drone.png
-├── styles/
-│   └── style.css
-└── README.md
-📸 Application Preview
-
-
-⚙️ Installation
-1. Clone the Repository
-git clone https://github.com/yourusername/drone-autopilot-delivery.git
-2. Navigate to the Project Folder
-cd drone-autopilot-delivery
-3. Create a Virtual Environment
+```powershell
 python -m venv venv
-4. Activate the Virtual Environment
-
-Windows:
-
 venv\Scripts\activate
+```
 
-Linux/MacOS:
+2. Install dependencies:
 
-source venv/bin/activate
-5. Install Dependencies
+```powershell
 pip install -r requirements.txt
+```
 
-Or manually:
+3. Run the application:
 
-pip install streamlit gtts
-6. Run the Application
+```powershell
 streamlit run app.py
+```
 
-Open your browser and visit:
+Then open `http://localhost:8501` in your browser.
 
-http://localhost:8501
-📚 Data Structure Implementation
+## Frontend / Backend separation
 
-This project uses a FIFO Queue implemented with a Singly Linked List.
+- Frontend: `app.py` and files under `pages/`
+- Backend: files under `backend/`
 
-Node Structure
+Backend files do not import Streamlit. They only handle queue operations, package creation, and delivery state changes.
 
-Each node stores:
+## Backend API
 
-Package data
-Reference to the next node
-Queue Structure
+- `backend.logic.Queue`
+     - `enqueue(data)`
+     - `dequeue()` -> dict | None
+     - `get_all()` -> list[dict]
+     - `remove_at(index)` -> dict | None
+- `backend.package_service.add_package(queue, penerima, paket, tujuan, priority, berat)`
+- `backend.package_service.get_queue_list(queue)`
+- `backend.drone_service.dispatch_next(queue, drones, active_deliveries)`
+- `backend.drone_service.mark_package_delivered_by_index(queue, index, history)`
+- `backend.drone_service.process_active_deliveries(drones, active_deliveries, history, now=None, threshold_seconds=2)`
 
-The queue maintains two pointers:
+## Quick backend test
 
-Front → points to the first package
-Rear → points to the last package
-Queue Visualization
-Front                           Rear
-  │                               │
-  ▼                               ▼
-+---------+    +---------+    +---------+
-| Paket A | -> | Paket B | -> | Paket C |
-+---------+    +---------+    +---------+
+Run the sample helper script:
 
-Packages are delivered according to the FIFO principle:
+```powershell
+python test_backend.py
+```
 
-First In → First Out
-🔄 Delivery Workflow
-User Input
-     │
-     ▼
-+------------+
-| Enqueue    |
-| Package    |
-+------------+
-     │
-     ▼
-+------------+
-| FIFO Queue |
-+------------+
-     │
-     ▼
-+------------+
-| Drone      |
-| Delivery   |
-+------------+
-     │
-     ▼
-Package Arrived
-⚡ Queue Operations
-Method	Description	Time Complexity
-enqueue()	Add package to queue	O(1)
-dequeue()	Remove package from queue	O(1)
-get_all()	Retrieve all packages	O(n)
-💾 Data Storage
+## Notes
 
-Queue data is stored using Streamlit Session State:
+- `requirements.txt` contains the minimal dependency for the frontend.
+- UI logic stays in Streamlit page files; backend logic stays in `backend/`.
 
-st.session_state.queue
-Advantages
-No database required
-Lightweight and efficient
-Data persists during the active session
-Easy integration with Streamlit
-🎯 Learning Outcomes
+## Cara Menjalankan (Windows PowerShell)
 
-Through this project, I learned:
+1) Buat environment dan aktifkan (direkomendasikan):
 
-Implementation of Queue using a Singly Linked List
-Application of FIFO principles in real-world systems
-State management with Streamlit Session State
-Integration of Google Text-to-Speech
-Frontend customization using CSS
-Development of interactive dashboard applications
-🧾 Development Process
+```powershell
+python -m venv venv
+venv\Scripts\activate
+```
 
-This project was developed incrementally through multiple stages:
+2) Install dependensi minimal:
 
-Initial project setup
-Queue data structure implementation
-Streamlit integration
-Dashboard development
-Audio notification feature
-UI enhancement with custom CSS
-Testing and bug fixing
-Final optimization
-🔮 Future Improvements
+```powershell
+pip install streamlit
+```
 
-Potential enhancements include:
+3) Jalankan aplikasi:
 
-Multi-drone delivery support
-Delivery route optimization
-Real-time GPS tracking
-Database integration
-Delivery history logs
-Interactive map visualization
-Package priority system
-🚀 Conclusion
+```powershell
+streamlit run app.py
+```
 
-Drone AutoPilot Delivery demonstrates how fundamental data structures can be applied in practical applications.
+Kemudian buka `http://localhost:8501` di browser.
 
-The project successfully combines:
+Catatan: gTTS dan audio telah dihapus dari UI utama dalam refaktor ini — jika Anda ingin mengembalikan audio, tambahkan `gtts` di dependencies.
 
-Data Structure implementation
-Backend logic development
-Interactive frontend design
-Real-time simulation concepts
+---
 
-This simulation provides a simple but effective representation of an autonomous drone delivery system powered by a FIFO Queue.
+## Pemisahan Frontend / Backend — Panduan singkat
 
-📄 License
+- Frontend (Streamlit):
+     - File di `pages/` dan `app.py`.
+     - Tugas: menampilkan UI, membaca/menulis `st.session_state`, memanggil fungsi di `backend/`.
 
-This project is licensed under the MIT License.
+- Backend (tanpa UI):
+     - File di `backend/` seperti `package_service.py`, `drone_service.py`, dan `logic.py`.
+     - Tugas: operasi data murni (enqueue, dequeue, dispatch, mark delivered, process deliveries).
+     - Jangan import `streamlit` di modul `backend/`.
 
-Feel free to use, modify, and distribute this project for educational purposes.
+Contoh panggilan dari frontend (Streamlit page):
+
+```py
+from backend.package_service import add_package
+from backend.drone_service import mark_package_delivered_by_index, process_active_deliveries
+
+# menambahkan paket ke antrean
+add_package(st.session_state.queue, 'Budi', 'Laptop', 'Surabaya', 'Express', 2.5)
+
+# tandai paket index ke-0 sebagai terkirim
+mark_package_delivered_by_index(st.session_state.queue, 0, st.session_state.history)
+
+# proses active deliveries (selesai -> masuk history)
+process_active_deliveries(st.session_state.drones, st.session_state.active_deliveries, st.session_state.history)
+```
+
+---
+
+## API Backend (singkat)
+
+- `backend.logic.Queue`
+     - `enqueue(data)`
+     - `dequeue()` -> dict | None
+     - `get_all()` -> list[dict]
+     - `remove_at(index)` -> dict | None
+
+- `backend.package_service`
+     - `add_package(queue, penerima, paket, tujuan, priority, berat)` -> dict
+     - `get_queue_list(queue)` -> list
+
+- `backend.drone_service`
+     - `dispatch_next(queue, drones, active_deliveries)` -> (bool, message)
+     - `mark_package_delivered_by_index(queue, index, history)` -> dict | None
+     - `process_active_deliveries(drones, active_deliveries, history, now=None, threshold_seconds=2)` -> int
+
+Backend functions are pure Python and simple to unit-test.
+
+---
+
+## Testing backend quickly (example)
+
+Create a short script `test_backend.py` in project root:
+
+```py
+from backend.logic import Queue
+from backend.package_service import add_package
+from backend.drone_service import mark_package_delivered_by_index
+
+q = Queue()
+add_package(q, 'A', 'ItemA', 'Kesambi', 'Regular', 1.0)
+add_package(q, 'B', 'ItemB', 'Kejaksan', 'Express', 0.5)
+
+removed = mark_package_delivered_by_index(q, 0, [])
+print('removed:', removed)
+```
+
+Run it with:
+
+```powershell
+python test_backend.py
+```
+
+---
+
+## Contributing / Best practices
+
+- Jaga boundary: jangan mengimpor `streamlit` dari dalam `backend/`.
+- Semua logic yang perlu diuji otomatis (unit tests) harus dibuat di `backend/`.
+- UI-only tasks: format output, styling, dan interaksi pengguna tetap di `pages/`.
+
+---
+
+Jika Anda mau, saya bisa menambahkan:
+- `requirements.txt` minimal (mis. `streamlit`),
+- contoh `test_backend.py` di repo,
+- instruksi debug atau CI sederhana untuk unit tests.
+
+Beritahu saya mana yang ingin ditambahkan.

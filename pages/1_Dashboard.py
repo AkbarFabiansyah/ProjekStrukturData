@@ -7,7 +7,7 @@ import pandas as pd
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
-from logic import Queue
+from backend.logic import Queue
 
 # Resolve logo and CSS paths
 LOGO_PATH = os.path.join(BASE_DIR, "assets", "logo.png")
@@ -18,7 +18,7 @@ CSS_PATH = os.path.join(BASE_DIR, "styles", "style.css")
 # =====================
 st.set_page_config(
     page_title="Dashboard - Drone Delivery",
-    page_icon="📊",
+    page_icon="⋮",
     layout="wide"
 )
 
@@ -136,7 +136,7 @@ st.markdown("""
     <ul style="color: #94a3b8; font-size: 0.9rem; margin: 0; padding-left: 20px;">
         <li>Gunakan menu <b>Tambah Paket</b> untuk mendaftarkan paket baru ke antrean sistem.</li>
         <li>Buka menu <b>Antrean Drone</b> untuk menugaskan drone dan menerbangkannya ke lokasi.</li>
-        <li>Anda bisa memantau pergerakan drone secara langsung di menu <b>Navigasi</b>.</li>
+        <li>Lihat status dan riwayat pengiriman di menu <b>Riwayat</b>.</li>
     </ul>
 </div>
 """, unsafe_allow_html=True)

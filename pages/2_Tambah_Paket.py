@@ -6,7 +6,8 @@ import sys
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
-from logic import Queue
+from backend.logic import Queue
+from backend.package_service import add_package as backend_add_package
 
 # Resolve logo and CSS paths
 LOGO_PATH = os.path.join(BASE_DIR, "assets", "logo.png")
@@ -17,7 +18,7 @@ CSS_PATH = os.path.join(BASE_DIR, "styles", "style.css")
 # =====================
 st.set_page_config(
     page_title="Tambah Paket - Drone Delivery",
-    page_icon="📦",
+    page_icon="⋮",
     layout="wide"
 )
 
@@ -98,23 +99,20 @@ with col1:
             if not penerima.strip() or not paket.strip():
                 st.error("⚠️ Nama penerima dan nama paket tidak boleh kosong.")
             else:
-                data = {
-                    "penerima": penerima.strip(),
-                    "paket": paket.strip(),
-                    "tujuan": tujuan,
-                    "priority": priority,
-                    "berat": berat,
-                    "status": "Pending"
-                }
-                
-                # Enqueue into the Linked List
-                st.session_state.queue.enqueue(data)
-                
+                added = backend_add_package(
+                    st.session_state.queue,
+                    penerima.strip(),
+                    paket.strip(),
+                    tujuan,
+                    priority,
+                    berat,
+                )
+
                 st.markdown(f"""
                 <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 15px; margin-top: 15px;">
                     <h5 style="color: #10b981; margin: 0 0 5px 0;">🎉 Berhasil Ditambahkan!</h5>
                     <p style="color: #94a3b8; margin: 0; font-size: 0.9rem;">
-                        Paket untuk <b>{penerima}</b> ({paket}) menuju <b>{tujuan}</b> telah terdaftar di antrean.
+                        Paket untuk <b>{added.get('penerima')}</b> ({added.get('paket')}) menuju <b>{added.get('tujuan')}</b> telah terdaftar di antrean.
                     </p>
                 </div>
                 """, unsafe_allow_html=True)

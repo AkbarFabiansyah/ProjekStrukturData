@@ -21,7 +21,7 @@ CSS_PATH = os.path.join(BASE_DIR, "styles", "style.css")
 # =====================
 st.set_page_config(
     page_title="Drone AutoPilot Delivery",
-    page_icon="🚁",
+    page_icon="⋮",
     layout="wide",
     initial_sidebar_state="expanded"   
 )
@@ -77,19 +77,6 @@ with st.sidebar:
 # =====================
 # MAIN LANDING PAGE
 # =====================
-# Hero Banner
-st.markdown(f"""
-<div class="hero-container">
-    <div class="hero-text">
-        <div class="hero-title">Drone AutoPilot Delivery</div>
-        <div class="hero-subtitle">
-            Sistem pengiriman paket otomatis berbasis drone autopilot. 
-            Mengoptimalkan antrean pengiriman secara realtime dengan kecepatan, ketepatan, dan efisiensi energi.
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
-
 # Features and Drone Image Section
 col1, col2 = st.columns([3, 2])
 

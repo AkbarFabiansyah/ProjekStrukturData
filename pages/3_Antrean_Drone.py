@@ -2,13 +2,12 @@ import streamlit as st
 import os
 import sys
 import time
-from gtts import gTTS
-import io, base64
 # Path configurations
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 
 from backend.logic import Queue
+from backend.drone_service import mark_package_delivered_by_index, process_active_deliveries, dispatch_next
 
 # Resolve logo and CSS paths
 LOGO_PATH = os.path.join(BASE_DIR, "assets", "logo.png")
@@ -19,7 +18,7 @@ CSS_PATH = os.path.join(BASE_DIR, "styles", "style.css")
 # =====================
 st.set_page_config(
     page_title="Antrean Drone - Drone Delivery",
-    page_icon="🚀",
+    page_icon="⋮",
     layout="wide"
 )
 
@@ -60,6 +59,9 @@ if "drones" not in st.session_state:
 if "active_deliveries" not in st.session_state:
     st.session_state.active_deliveries = []
 
+# Ensure active deliveries are processed via backend service (no Streamlit usage in backend)
+process_active_deliveries(st.session_state.drones, st.session_state.active_deliveries, st.session_state.history)
+
 # =====================
 # MAIN CONTENT
 # =====================
@@ -68,35 +70,43 @@ st.markdown("Kelola antrean paket dan tugaskan armada drone untuk melakukan peng
 st.markdown("---")
 
 col1, col2 = st.columns([1.5, 1])
-
 with col1:
     st.markdown("### 📋 Daftar Antrean Paket (FIFO)")
-    
+
     queue_data = st.session_state.queue.get_all()
-    
+
     if queue_data:
         st.markdown(f"Terdapat **{len(queue_data)}** paket dalam antrean. Paket paling atas akan diproses terlebih dahulu.")
-        
-        # Display each package in the queue
+
         for i, item in enumerate(queue_data):
             badge_class = "badge-pending"
             priority_color = "#ef4444" if item.get('priority') == "Express" else "#3b82f6"
-            
-            st.markdown(f"""
-            <div class="package-card" style="border-left: 4px solid {priority_color};">
-                <div class="package-info">
-                    <span class="package-name">#{i+1} {item['paket']}</span>
-                    <span class="package-meta">Penerima: <b>{item['penerima']}</b> | Tujuan: <b>{item['tujuan']}</b></span>
-                    <span class="package-meta" style="color: #94a3b8;">
-                        Berat: {item['berat']} kg | 
-                        Prioritas: <span style="color: {priority_color}; font-weight: bold;">{item.get('priority', 'Regular')}</span>
-                    </span>
+            # Render package card with a 'Tandai Terkirim' button
+            cols = st.columns([5, 1])
+            with cols[0]:
+                st.markdown(f"""
+                <div class="package-card" style="border-left: 4px solid {priority_color};">
+                    <div class="package-info">
+                        <span class="package-name">#{i+1} {item['paket']}</span>
+                        <span class="package-meta">Penerima: <b>{item['penerima']}</b> | Tujuan: <b>{item['tujuan']}</b></span>
+                        <span class="package-meta" style="color: #94a3b8;">
+                            Berat: {item['berat']} kg | 
+                            Prioritas: <span style="color: {priority_color}; font-weight: bold;">{item.get('priority', 'Regular')}</span>
+                        </span>
+                    </div>
+                    <div>
+                        <span class="badge {badge_class}">{item['status']}</span>
+                    </div>
                 </div>
-                <div>
-                    <span class="badge {badge_class}">{item['status']}</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
+            with cols[1]:
+                if st.button("✓ Terkirim", key=f"mark_done_{i}"):
+                    # Remove the item from the queue (by index) and add to history via backend service
+                    removed = mark_package_delivered_by_index(st.session_state.queue, i, st.session_state.history)
+                    if removed:
+                        st.success(f"Paket '{removed.get('paket')}' ditandai sebagai Terkirim dan masuk ke Riwayat.")
+                        # process any active deliveries as well
+                        process_active_deliveries(st.session_state.drones, st.session_state.active_deliveries, st.session_state.history)
     else:
         st.info("ℹ️ Tidak ada paket dalam antrean saat ini. Silakan tambahkan paket di halaman 'Tambah Paket'.")
 
@@ -120,51 +130,11 @@ with col2:
     
     st.markdown("---")
     
-    # Deliver package action
+    # Instruction: mark packages as delivered using the per-item button
+    st.markdown("---")
     if queue_data:
-        if len(ready_drones) > 0:
-            st.markdown("<div class='glowing-btn'>", unsafe_allow_html=True)
-            if st.button("🚁 Lepas Landas & Kirim Paket Teratas", use_container_width=True):
-                # Dequeue the package
-                paket = st.session_state.queue.dequeue()
-                
-                if paket:
-                    # Select the first ready drone
-                    selected_drone = ready_drones[0]
-                    
-                    # Update the drone status in session state
-                    for d in st.session_state.drones:
-                        if d["id"] == selected_drone["id"]:
-                            d["status"] = "Delivering"
-                            d["current_job"] = paket
-                            break
-                            
-                    # Add to active deliveries with start position and progress
-                    active_delivery = {
-                        "drone_id": selected_drone["id"],
-                        "paket": paket,
-                        "progress": 0,
-                        "status": "Terbang",
-                        "timestamp": time.time()
-                    }
-                    # Text-to-speech notification for delivery assignment
-                    tts = gTTS(text=f"Paket {paket.get('paket', '')} berhasil dikirim ke {paket.get('tujuan', '')}", lang="id")
-                    audio_fp = io.BytesIO()
-                    tts.write_to_fp(audio_fp)
-                    audio_fp.seek(0)
-                    audio_bytes = audio_fp.read()
-                    b64 = base64.b64encode(audio_bytes).decode()
-                    audio_html = f'<audio autoplay src="data:audio/mp3;base64,{b64}"></audio>'
-                    st.markdown(audio_html, unsafe_allow_html=True)
-                    st.success(f"🚀 Drone {selected_drone['id']} ditugaskan untuk mengirim paket '{paket['paket']}' ke {paket['tujuan']}!")
-                    
-                    
-                    time.sleep(1.5)
-                    st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
-        else:
-            st.warning("⚠️ Semua drone sedang sibuk atau baterai habis. Tunggu hingga drone menyelesaikan pengiriman.")
+        st.info("Gunakan tombol '✓ Terkirim' pada setiap paket untuk memindahkan paket ke Riwayat.")
     else:
-        st.info("💡 Tambahkan paket ke antrean untuk mengaktifkan tombol pengiriman.")
+        st.info("💡 Tambahkan paket ke antrean untuk melihat opsi penandaan sebagai terkirim.")
 
 
