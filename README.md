@@ -203,18 +203,3 @@ python test_backend.py
 ```
 
 ---
-
-## Contributing / Best practices
-
-- Jaga boundary: jangan mengimpor `streamlit` dari dalam `backend/`.
-- Semua logic yang perlu diuji otomatis (unit tests) harus dibuat di `backend/`.
-- UI-only tasks: format output, styling, dan interaksi pengguna tetap di `pages/`.
-
----
-
-Jika Anda mau, saya bisa menambahkan:
-- `requirements.txt` minimal (mis. `streamlit`),
-- contoh `test_backend.py` di repo,
-- instruksi debug atau CI sederhana untuk unit tests.
-
-Beritahu saya mana yang ingin ditambahkan.
