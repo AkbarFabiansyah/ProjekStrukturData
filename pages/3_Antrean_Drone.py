@@ -71,9 +71,21 @@ st.markdown("---")
 
 col1, col2 = st.columns([1.5, 1])
 with col1:
-    st.markdown("### 📋 Daftar Antrean Paket (FIFO)")
-
+    header_col1, header_col2 = st.columns([2, 1])
+    with header_col1:
+        st.markdown("### 📋 Daftar Antrean Paket (FIFO)")
+    
     queue_data = st.session_state.queue.get_all()
+
+    with header_col2:
+        if queue_data:
+            if st.button("🚀 Kirim Paket Terdepan", use_container_width=True):
+                # Remove the first item from the queue (FIFO logic)
+                removed = mark_package_delivered_by_index(st.session_state.queue, 0, st.session_state.history)
+                if removed:
+                    st.success(f"Paket '{removed.get('paket')}' diproses dan masuk ke Riwayat.")
+                    process_active_deliveries(st.session_state.drones, st.session_state.active_deliveries, st.session_state.history)
+                    st.rerun()
 
     if queue_data:
         st.markdown(f"Terdapat **{len(queue_data)}** paket dalam antrean. Paket paling atas akan diproses terlebih dahulu.")
@@ -81,32 +93,22 @@ with col1:
         for i, item in enumerate(queue_data):
             badge_class = "badge-pending"
             priority_color = "#ef4444" if item.get('priority') == "Express" else "#3b82f6"
-            # Render package card with a 'Tandai Terkirim' button
-            cols = st.columns([5, 1])
-            with cols[0]:
-                st.markdown(f"""
-                <div class="package-card" style="border-left: 4px solid {priority_color};">
-                    <div class="package-info">
-                        <span class="package-name">#{i+1} {item['paket']}</span>
-                        <span class="package-meta">Penerima: <b>{item['penerima']}</b> | Tujuan: <b>{item['tujuan']}</b></span>
-                        <span class="package-meta" style="color: #94a3b8;">
-                            Berat: {item['berat']} kg | 
-                            Prioritas: <span style="color: {priority_color}; font-weight: bold;">{item.get('priority', 'Regular')}</span>
-                        </span>
-                    </div>
-                    <div>
-                        <span class="badge {badge_class}">{item['status']}</span>
-                    </div>
+            # Render package card without individual buttons
+            st.markdown(f"""
+            <div class="package-card" style="border-left: 4px solid {priority_color};">
+                <div class="package-info">
+                    <span class="package-name">#{i+1} {item['paket']}</span>
+                    <span class="package-meta">Penerima: <b>{item['penerima']}</b> | Tujuan: <b>{item['tujuan']}</b></span>
+                    <span class="package-meta" style="color: #94a3b8;">
+                        Berat: {item['berat']} kg | 
+                        Prioritas: <span style="color: {priority_color}; font-weight: bold;">{item.get('priority', 'Regular')}</span>
+                    </span>
                 </div>
-                """, unsafe_allow_html=True)
-            with cols[1]:
-                if st.button("✓ Terkirim", key=f"mark_done_{i}"):
-                    # Remove the item from the queue (by index) and add to history via backend service
-                    removed = mark_package_delivered_by_index(st.session_state.queue, i, st.session_state.history)
-                    if removed:
-                        st.success(f"Paket '{removed.get('paket')}' ditandai sebagai Terkirim dan masuk ke Riwayat.")
-                        # process any active deliveries as well
-                        process_active_deliveries(st.session_state.drones, st.session_state.active_deliveries, st.session_state.history)
+                <div>
+                    <span class="badge {badge_class}">{item['status']}</span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
     else:
         st.info("ℹ️ Tidak ada paket dalam antrean saat ini. Silakan tambahkan paket di halaman 'Tambah Paket'.")
 
@@ -130,11 +132,11 @@ with col2:
     
     st.markdown("---")
     
-    # Instruction: mark packages as delivered using the per-item button
+    # Instruction: info on processing packages
     st.markdown("---")
     if queue_data:
-        st.info("Gunakan tombol '✓ Terkirim' pada setiap paket untuk memindahkan paket ke Riwayat.")
+        st.info("Gunakan tombol '🚀 Kirim Paket Terdepan' di atas untuk memproses paket dengan urutan FIFO (First In First Out) dan memindahkannya ke Riwayat.")
     else:
-        st.info("💡 Tambahkan paket ke antrean untuk melihat opsi penandaan sebagai terkirim.")
+        st.info("💡 Tambahkan paket ke antrean untuk melihat opsi pengiriman.")
 
 

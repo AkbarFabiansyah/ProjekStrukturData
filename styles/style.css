@@ -24,6 +24,11 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+/* Hide Streamlit collapse sidebar text/icon */
+[data-testid="stSidebar"] [title*='keyboard_double_arrow'] {
+    display: none !important;
+}
+
 /* App View Container */
 [data-testid="stAppViewContainer"] {
     background-color: var(--bg-dark) !important;

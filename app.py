@@ -60,7 +60,13 @@ with st.sidebar:
     else:
         st.title("🚁 Drone Delivery")
     
-    st.markdown('<style>,footer,header{visibility: hidden}</style>', unsafe_allow_html=True)
+    # Hide unwanted keyboard_double_arrow text in sidebar
+    st.markdown("""
+    <style>
+    .stSidebar [title*='keyboard_double_arrow'] {display:none !important;}
+    </style>
+    """, unsafe_allow_html=True)
+    st.markdown('---')
     st.markdown("---")
     st.markdown("### Status Sistem")
     st.success("🟢 Online & Siap")
@@ -73,6 +79,37 @@ with st.sidebar:
     
     st.markdown("---")
     st.caption("© 2026 Drone AutoPilot. All rights reserved.")
+    # FIFO Queue Management UI
+    st.subheader("Antrean Paket")
+    new_package = st.text_input("Nama Paket")
+    # Button to add package to the queue
+    if st.button("Tambah ke Antrean"):
+        if new_package:
+            st.session_state.queue.enqueue(new_package)
+            st.success(f"'{new_package}' ditambahkan ke antrean")
+    # Single FIFO processing button – always processes the earliest package
+    if st.button("Kirim Paket Terdepan"):
+        next_pkg = st.session_state.queue.dequeue()
+        if next_pkg is not None:
+            st.session_state.history.append(next_pkg)
+            st.success(f"Paket '{next_pkg}' diproses (FIFO)")
+        else:
+            st.warning("Antrean kosong")
+    # Process all packages button
+    if st.button("Proses Semua Paket"):
+        while True:
+            pkg = st.session_state.queue.dequeue()
+            if pkg is None:
+                break
+            st.session_state.history.append(pkg)
+        st.success("Semua paket telah diproses")
+    # Display processed history
+    if st.session_state.history:
+        st.write("**Riwayat Paket Diproses:**")
+        for idx, pkg in enumerate(st.session_state.history, 1):
+            st.write(f"{idx}. {pkg}")
+    else:
+        st.write("Tidak ada paket yang diproses")
 
 # =====================
 # MAIN LANDING PAGE
